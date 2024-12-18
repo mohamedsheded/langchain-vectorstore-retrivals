@@ -1,3 +1,4 @@
+# FOR EDUCATIONAL PURPOSES AND AS A REFERENCE
 # LangChain Retrievers: VectorStore vs. Other Approaches
 
 This README explains different ways of creating retrievers using VectorStores in LangChain. It covers concepts like `as_retriever`, `RunnableLambda`, batch operations, and more. Use this as a reference for practical implementations.
