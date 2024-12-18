@@ -115,7 +115,53 @@ for i, results in enumerate(batch_results):
 
 ---
 
-## 5. **Comparison: Standard Retriever vs. Custom Implementations**
+## 5. **Using a Retriever in a Chain**
+You can integrate retrievers into a LangChain pipeline for complex workflows. Below is an example of chaining with a retriever, a `RunnablePassthrough`, and a chat prompt template.
+
+### Example: Retriever with Runnable Chain
+```python
+from langchain.chains import LLMChain
+from langchain.prompts.chat import ChatPromptTemplate
+from langchain.schema.runnable import RunnablePassthrough
+from langchain.chat_models import ChatOpenAI
+
+# Define the retriever
+retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 2})
+
+# Create a chat prompt template
+prompt = ChatPromptTemplate.from_template(
+    """
+    You are a helpful assistant. Based on the following documents:
+    {context}
+
+    Answer the question:
+    {question}
+    """
+)
+
+# Define an LLM model
+llm = ChatOpenAI(model="gpt-3.5-turbo")
+
+# Create a chain combining retriever and LLM
+chain = (
+    retriever
+    | RunnablePassthrough()  # Pass retrieved documents to the next step
+    | prompt  # Use the chat prompt template
+    | llm  # Generate a response using the LLM
+)
+
+# Example query
+query = "Where is the Eiffel Tower located?"
+response = chain.invoke({"question": query})
+print(response)
+```
+**Key Points:**
+- `RunnablePassthrough` passes data without modifications, ensuring smooth integration.
+- The chain combines retrieval (`retriever`), contextualization (`prompt`), and response generation (`llm`).
+
+---
+
+## 6. **Comparison: Standard Retriever vs. Custom Implementations**
 
 | **Feature**              | **`as_retriever`**                | **`RunnableLambda`**                 | **Batch Operations**               |
 |--------------------------|-----------------------------------|--------------------------------------|------------------------------------|
@@ -126,7 +172,7 @@ for i, results in enumerate(batch_results):
 
 ---
 
-## 6. **Additional Notes**
+## 7. **Additional Notes**
 - **VectorStore** backends: LangChain supports FAISS, Pinecone, Weaviate, and more.
 - Use **PEFT** techniques or quantization for embedding optimization if dealing with large-scale data.
 - Combine retrievers with tools like LangChain pipelines for end-to-end applications.
